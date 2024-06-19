@@ -1,17 +1,32 @@
-import discord 
+import discord
+import os
+from dotenv import load_dotenv
 
-bot = discord.Bot()
+# Load environment variables from .env file
+load_dotenv()
 
-# Prints in terminal as soon as bot is active
-@bot.event 
+# Get the token from the environment variable
+token = os.getenv('TOKEN')
+
+# Set the Intents
+intents = discord.Intents.default()
+intents.message_content = True
+
+client = discord.Client(intents=intents)
+
+# Console log when the bot is ready
+@client.event
 async def on_ready():
-  print(f"We have logged in as {bot.user}")
-  
+    print(f'We have logged in as {client.user}')
 
-# ID's for the server we are testing on
-testingServers = []
+# Respond to the message
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
 
-# Create a slash command (hello world)
-@bot.slash_command(guild_ids=testingServers, name="work", description="Checks to see if I am online")
-async def work(ctx):
-  await ctx.respond(f"I am working! \n\nLatency: {bot.latency*1000}ms")
+    if message.content.startswith('$hello'):
+        await message.channel.send('Hello!')
+
+# Run the bot
+client.run(token)
